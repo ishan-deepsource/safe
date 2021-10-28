@@ -24,25 +24,31 @@ function stream_context_set_params($context, array $params): void
 
 
 /**
- * Makes a copy of up to maxlength bytes
+ * Makes a copy of up to length bytes
  * of data from the current position (or from the
  * offset position, if specified) in
- * source to dest. If
- * maxlength is not specified, all remaining content in
- * source will be copied.
+ * from to to. If
+ * length is NULL, all remaining content in
+ * from will be copied.
  *
- * @param resource $source The source stream
- * @param resource $dest The destination stream
- * @param int $maxlength Maximum bytes to copy
+ * @param resource $from The source stream
+ * @param resource $to The destination stream
+ * @param int $length Maximum bytes to copy. By default all bytes left are copied.
  * @param int $offset The offset where to start to copy data
  * @return int Returns the total count of bytes copied.
  * @throws StreamException
  *
  */
-function stream_copy_to_stream($source, $dest, int $maxlength = -1, int $offset = 0): int
+function stream_copy_to_stream($from, $to, int $length = null, int $offset = 0): int
 {
     error_clear_last();
-    $result = \stream_copy_to_stream($source, $dest, $maxlength, $offset);
+    if ($offset !== 0) {
+        $result = \stream_copy_to_stream($from, $to, $length, $offset);
+    } elseif ($length !== null) {
+        $result = \stream_copy_to_stream($from, $to, $length);
+    } else {
+        $result = \stream_copy_to_stream($from, $to);
+    }
     if ($result === false) {
         throw StreamException::createFromPhpError();
     }
